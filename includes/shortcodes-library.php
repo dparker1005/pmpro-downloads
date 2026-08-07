@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Shortcode to display a library of downloads.
  *
- * Usage: [pmpro_download_library template="card" layout="grid" columns="2"]
+ * Usage: [pmpro_download_library template="card" layout="grid" columns="2" category="slug-1,slug-2"]
  *
  * @since 1.0
  *
@@ -28,6 +28,7 @@ function pmpro_download_library_shortcode( $atts ) {
 		'limit'    => -1,
 		'orderby'  => 'title',
 		'order'    => 'asc',
+		'category' => '',
 	), $atts, 'pmpro_download_library' );
 
 	// Validate attributes.
@@ -52,13 +53,48 @@ function pmpro_download_library_shortcode( $atts ) {
 
 	// Query downloads. Uses WP_Query so that PMPro's pmpro_search_filter
 	// can exclude restricted downloads when "Filter searches and archives" is enabled.
-	$query = new WP_Query( array(
+	$query_args = array(
 		'post_type'      => 'pmpro_download',
 		'post_status'    => 'publish',
 		'posts_per_page' => $limit,
 		'orderby'        => $orderby,
 		'order'          => $order,
-	) );
+	);
+
+	// Filter by download category. Accepts a comma-separated list of term slugs or IDs.
+	if ( ! empty( $atts['category'] ) ) {
+		$term_ids   = array();
+		$term_slugs = array();
+		foreach ( array_filter( array_map( 'trim', explode( ',', $atts['category'] ) ) ) as $term ) {
+			if ( is_numeric( $term ) ) {
+				$term_ids[] = intval( $term );
+			} else {
+				$term_slugs[] = sanitize_title( $term );
+			}
+		}
+
+		$tax_query = array( 'relation' => 'OR' );
+		if ( ! empty( $term_ids ) ) {
+			$tax_query[] = array(
+				'taxonomy' => 'pmpro_download_category',
+				'field'    => 'term_id',
+				'terms'    => $term_ids,
+			);
+		}
+		if ( ! empty( $term_slugs ) ) {
+			$tax_query[] = array(
+				'taxonomy' => 'pmpro_download_category',
+				'field'    => 'slug',
+				'terms'    => $term_slugs,
+			);
+		}
+
+		if ( count( $tax_query ) > 1 ) {
+			$query_args['tax_query'] = $tax_query; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+		}
+	}
+
+	$query = new WP_Query( $query_args );
 
 	$downloads = $query->posts;
 

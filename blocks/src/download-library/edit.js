@@ -3,8 +3,9 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, SelectControl, RangeControl } from '@wordpress/components';
+import { PanelBody, SelectControl, RangeControl, FormTokenField } from '@wordpress/components';
 import ServerSideRender from '@wordpress/server-side-render';
+import { useSelect } from '@wordpress/data';
 
 /**
  * Render the PMPro Download Library block in the editor.
@@ -14,7 +15,35 @@ import ServerSideRender from '@wordpress/server-side-render';
  */
 export default function Edit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps();
-	const { template, layout, columns, label, limit, orderby, order } = attributes;
+	const { template, layout, columns, label, limit, orderby, order, category } = attributes;
+
+	// Fetch all download categories.
+	const downloadCategories = useSelect( ( select ) => {
+		const { getEntityRecords } = select( 'core' );
+		return getEntityRecords( 'taxonomy', 'pmpro_download_category', {
+			per_page: 100,
+			hide_empty: false,
+		} ) || [];
+	}, [] );
+
+	// The category attribute stores a comma-separated list of term slugs.
+	// Map slugs to term names for display in the token field.
+	const selectedSlugs = category ? category.split( ',' ).filter( ( slug ) => slug ) : [];
+	const selectedCategoryNames = selectedSlugs.map( ( slug ) => {
+		const term = downloadCategories.find( ( cat ) => cat.slug === slug );
+		return term ? term.name : slug;
+	} );
+
+	// Update the category attribute from the token field's term names.
+	const onChangeCategories = ( tokens ) => {
+		const slugs = tokens
+			.map( ( token ) => {
+				const term = downloadCategories.find( ( cat ) => cat.name === token );
+				return term ? term.slug : null;
+			} )
+			.filter( ( slug ) => slug );
+		setAttributes( { category: slugs.join( ',' ) } );
+	};
 
 	// Template options.
 	const templateOptions = [
@@ -82,6 +111,14 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 				</PanelBody>
 				<PanelBody title={ __( 'Query Settings', 'pmpro-downloads' ) } initialOpen={ false }>
+					<FormTokenField
+						label={ __( 'Categories', 'pmpro-downloads' ) }
+						value={ selectedCategoryNames }
+						suggestions={ downloadCategories.map( ( cat ) => cat.name ) }
+						onChange={ onChangeCategories }
+						__experimentalExpandOnFocus
+						__experimentalShowHowTo={ false }
+					/>
 					<RangeControl
 						label={ __( 'Limit', 'pmpro-downloads' ) }
 						help={ __( 'Number of downloads to show. Use -1 for all.', 'pmpro-downloads' ) }

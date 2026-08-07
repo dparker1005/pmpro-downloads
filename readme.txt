@@ -29,12 +29,12 @@ When a visitor requests a download, PMPro checks their membership level before s
 Two blocks are available in the block inserter under the PMPro category:
 
 * **PMPro Download** — displays a single download by ID.
-* **PMPro Download Library** — displays all published downloads in a list or grid.
+* **PMPro Download Library** — displays all published downloads in a list or grid, with an option to filter by download category.
 
 Two shortcodes are also available:
 
 * `[pmpro_download id="123" template="link" label="title"]` — displays a single download.
-* `[pmpro_download_library template="link" layout="list" columns="2"]` — displays all published downloads.
+* `[pmpro_download_library template="link" layout="list" columns="2" category="slug-1,slug-2"]` — displays all published downloads, optionally filtered by download category (comma-separated term slugs or IDs).
 
 = Display Templates =
 
