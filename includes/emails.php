@@ -19,15 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param PMProEmail $email The email object.
  */
 function pmpro_downloads_swap_shortcodes_in_email( $email ) {
-	// Bail early if there is no shortcode in the body.
-	if ( false === strpos( $email->body, '[pmpro_download' ) ) {
-		return;
-	}
-
-	// Match [pmpro_download ...] shortcodes (self-closing only).
-	$pattern = '/\[pmpro_download\s+([^\]]*)\]/';
-
-	$email->body = preg_replace_callback( $pattern, 'pmpro_downloads_replace_shortcode_with_link', $email->body );
+	$email->body = pmpro_downloads_replace_shortcodes( $email->body, 'pmpro_downloads_replace_shortcode_with_link' );
 }
 add_action( 'pmpro_before_email_sent', 'pmpro_downloads_swap_shortcodes_in_email' );
 
@@ -40,12 +32,17 @@ add_action( 'pmpro_before_email_sent', 'pmpro_downloads_swap_shortcodes_in_email
  *
  * @since 1.1
  *
- * @param array $matches Regex matches from preg_replace_callback.
+ * @param array $matches Regex matches in the get_shortcode_regex() format.
  * @return string HTML link, or the original shortcode if the download is invalid.
  */
 function pmpro_downloads_replace_shortcode_with_link( $matches ) {
+	// Respect the [[pmpro_download]] escape syntax.
+	if ( '[' === $matches[1] && ']' === $matches[6] ) {
+		return substr( $matches[0], 1, -1 );
+	}
+
 	// Parse the shortcode attributes from the matched string.
-	$atts = shortcode_parse_atts( $matches[1] );
+	$atts = shortcode_parse_atts( $matches[3] );
 
 	$post_id = isset( $atts['id'] ) ? intval( $atts['id'] ) : 0;
 	if ( empty( $post_id ) ) {

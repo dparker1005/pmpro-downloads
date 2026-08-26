@@ -112,3 +112,46 @@ function pmpro_downloads_shortcode( $atts ) {
 	return pmpro_downloads_render_template( $template, $template_vars );
 }
 add_shortcode( 'pmpro_download', 'pmpro_downloads_shortcode' );
+
+/**
+ * Replace only [pmpro_download] shortcodes in a string of content.
+ *
+ * Uses core's shortcode regex restricted to the pmpro_download tag so that
+ * other shortcodes in the content are left untouched and the [[escaped]]
+ * syntax is still respected. The callback receives match groups in the
+ * get_shortcode_regex() format (tag in $matches[2], attributes in $matches[3]).
+ *
+ * @since 1.3
+ *
+ * @param string   $content  Content to search for shortcodes.
+ * @param callable $callback Callback passed to preg_replace_callback().
+ * @return string Content with [pmpro_download] shortcodes replaced.
+ */
+function pmpro_downloads_replace_shortcodes( $content, $callback ) {
+	// Bail early if there is no shortcode in the content.
+	if ( ! is_string( $content ) || false === strpos( $content, '[pmpro_download' ) ) {
+		return $content;
+	}
+
+	$pattern = get_shortcode_regex( array( 'pmpro_download' ) );
+	return preg_replace_callback( "/$pattern/", $callback, $content );
+}
+
+/**
+ * Render [pmpro_download] shortcodes that other shortcodes inject into content.
+ *
+ * Shortcode output is not re-parsed for nested shortcodes, so a download
+ * shortcode placed in a level confirmation message renders as raw text when
+ * the confirmation page uses the [pmpro_confirmation] shortcode. Running
+ * after do_shortcode (priority 11) expands any remaining pmpro_download
+ * shortcodes, matching the timing the Confirmation block already gets.
+ *
+ * @since 1.3
+ *
+ * @param string $content The post content.
+ * @return string The post content with pmpro_download shortcodes rendered.
+ */
+function pmpro_downloads_do_leftover_shortcodes( $content ) {
+	return pmpro_downloads_replace_shortcodes( $content, 'do_shortcode_tag' );
+}
+add_filter( 'the_content', 'pmpro_downloads_do_leftover_shortcodes', 12 );
