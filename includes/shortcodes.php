@@ -138,20 +138,68 @@ function pmpro_downloads_replace_shortcodes( $content, $callback ) {
 }
 
 /**
- * Render [pmpro_download] shortcodes that other shortcodes inject into content.
+ * Swap [pmpro_download] shortcodes in a level confirmation message for placeholders.
  *
- * Shortcode output is not re-parsed for nested shortcodes, so a download
- * shortcode placed in a level confirmation message renders as raw text when
- * the confirmation page uses the [pmpro_confirmation] shortcode. Running
- * after do_shortcode (priority 11) expands any remaining pmpro_download
- * shortcodes, matching the timing the Confirmation block already gets.
+ * Core echoes the confirmation message through wp_kses_post(), which would
+ * strip the SVG icons in our templates if we rendered here. Shortcode output
+ * is also not re-parsed for nested shortcodes, so the [pmpro_confirmation]
+ * shortcode never renders these. Instead, each shortcode becomes an HTML
+ * comment (which kses keeps) that pmpro_downloads_render_placeholders()
+ * swaps for the rendered template after kses has run.
+ *
+ * @since 1.3
+ *
+ * @param string $message The confirmation message.
+ * @return string The confirmation message with placeholders.
+ */
+function pmpro_downloads_confirmation_message_placeholders( $message ) {
+	return pmpro_downloads_replace_shortcodes( $message, 'pmpro_downloads_shortcode_to_placeholder' );
+}
+add_filter( 'pmpro_confirmation_message', 'pmpro_downloads_confirmation_message_placeholders' );
+
+/**
+ * Callback to convert a single [pmpro_download] match into a placeholder comment.
+ *
+ * @since 1.3
+ *
+ * @param array $matches Regex matches in the get_shortcode_regex() format.
+ * @return string Placeholder comment, or an entity-encoded literal for [[escaped]] shortcodes.
+ */
+function pmpro_downloads_shortcode_to_placeholder( $matches ) {
+	// Respect the [[pmpro_download]] escape syntax. Encode the brackets so
+	// that do_shortcode does not render the literal later in the block path.
+	if ( '[' === $matches[1] && ']' === $matches[6] ) {
+		return '&#91;' . substr( $matches[0], 2, -2 ) . '&#93;';
+	}
+
+	// Base64 keeps the attribute string safe inside an HTML comment.
+	return '<!--pmpro_download:' . base64_encode( $matches[3] ) . '-->';
+}
+
+/**
+ * Render the placeholders added by pmpro_downloads_confirmation_message_placeholders().
+ *
+ * Runs after do_shortcode (priority 11) so that the block and shortcode
+ * confirmation pages render downloads at the same point.
  *
  * @since TBD
  *
  * @param string $content The post content.
- * @return string The post content with pmpro_download shortcodes rendered.
+ * @return string The post content with download placeholders rendered.
  */
-function pmpro_downloads_do_leftover_shortcodes( $content ) {
-	return pmpro_downloads_replace_shortcodes( $content, 'do_shortcode_tag' );
+function pmpro_downloads_render_placeholders( $content ) {
+	// Bail early if there are no placeholders in the content.
+	if ( ! is_string( $content ) || false === strpos( $content, '<!--pmpro_download:' ) ) {
+		return $content;
+	}
+
+	return preg_replace_callback(
+		'/<!--pmpro_download:([A-Za-z0-9+\/=]*)-->/',
+		function ( $matches ) {
+			$atts = shortcode_parse_atts( base64_decode( $matches[1] ) );
+			return pmpro_downloads_shortcode( is_array( $atts ) ? $atts : array() );
+		},
+		$content
+	);
 }
-add_filter( 'the_content', 'pmpro_downloads_do_leftover_shortcodes', 12 );
+add_filter( 'the_content', 'pmpro_downloads_render_placeholders', 12 );
