@@ -147,7 +147,7 @@ function pmpro_downloads_replace_shortcodes( $content, $callback ) {
  * comment (which kses keeps) that pmpro_downloads_render_placeholders()
  * swaps for the rendered template after kses has run.
  *
- * @since 1.3
+ * @since TBD
  *
  * @param string $message The confirmation message.
  * @return string The confirmation message with placeholders.
@@ -160,7 +160,7 @@ add_filter( 'pmpro_confirmation_message', 'pmpro_downloads_confirmation_message_
 /**
  * Callback to convert a single [pmpro_download] match into a placeholder comment.
  *
- * @since 1.3
+ * @since TBD
  *
  * @param array $matches Regex matches in the get_shortcode_regex() format.
  * @return string Placeholder comment, or an entity-encoded literal for [[escaped]] shortcodes.
