@@ -121,7 +121,7 @@ add_shortcode( 'pmpro_download', 'pmpro_downloads_shortcode' );
  * syntax is still respected. The callback receives match groups in the
  * get_shortcode_regex() format (tag in $matches[2], attributes in $matches[3]).
  *
- * @since 1.3
+ * @since TBD
  *
  * @param string   $content  Content to search for shortcodes.
  * @param callable $callback Callback passed to preg_replace_callback().
@@ -146,7 +146,7 @@ function pmpro_downloads_replace_shortcodes( $content, $callback ) {
  * after do_shortcode (priority 11) expands any remaining pmpro_download
  * shortcodes, matching the timing the Confirmation block already gets.
  *
- * @since 1.3
+ * @since TBD
  *
  * @param string $content The post content.
  * @return string The post content with pmpro_download shortcodes rendered.
