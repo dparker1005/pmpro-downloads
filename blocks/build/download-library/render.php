@@ -6,4 +6,9 @@
  *
  * @var array $attributes Block attributes.
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 echo pmpro_download_library_shortcode( $attributes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

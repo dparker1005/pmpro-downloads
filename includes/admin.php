@@ -46,7 +46,7 @@ function pmpro_downloads_admin_header() {
 	}
 
 	// Temporarily set $_GET['page'] so pmpro_admin_header() passes its own check.
-	$original_page = isset( $_GET['page'] ) ? $_GET['page'] : null;
+	$original_page = isset( $_GET['page'] ) ? $_GET['page'] : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Read-only; the original value is saved and restored verbatim after pmpro_admin_header().
 	$_GET['page']  = 'pmpro-downloads';
 
 	pmpro_admin_header();

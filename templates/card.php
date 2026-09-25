@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="<?php echo esc_attr( pmpro_get_element_class( 'pmpro_card pmpro_download pmpro_download-card', 'pmpro_download-card' ) ); ?>">
 			<h2 class="<?php echo esc_attr( pmpro_get_element_class( 'pmpro_card_title pmpro_font-large' ) ); ?>">
 				<span class="<?php echo esc_attr( pmpro_get_element_class( 'pmpro_download-icon' ) ); ?>">
-					<?php echo pmpro_downloads_get_file_icon( $template_vars['file_extension'], 24 ); ?>
+					<?php echo pmpro_downloads_get_file_icon( $template_vars['file_extension'], 24 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static inline SVG markup; size is absint(). ?>
 				</span>
 				<span class="<?php echo esc_attr( pmpro_get_element_class( 'pmpro_download-title' ) ); ?>">
 					<?php echo esc_html( $template_vars['display_name'] ); ?>
@@ -40,7 +40,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<p>
 					<a class="<?php echo esc_attr( pmpro_get_element_class( 'pmpro_btn pmpro_btn-download' ) ); ?>" href="<?php echo esc_url( $template_vars['download_url'] ); ?>">
 						<span class="<?php echo esc_attr( pmpro_get_element_class( 'pmpro_download-icon' ) ); ?>">
-							<?php echo pmpro_downloads_get_icon_svg( 'download', 16 ); ?>
+							<?php echo pmpro_downloads_get_icon_svg( 'download', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static inline SVG markup; size is absint(). ?>
 						</span>
 						<?php esc_html_e( 'Download', 'pmpro-downloads' ); ?>
 					</a>
@@ -54,7 +54,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="<?php echo esc_attr( pmpro_get_element_class( 'pmpro_card pmpro_download pmpro_download-card pmpro_download-locked', 'pmpro_download-card' ) ); ?>">
 			<h2 class="<?php echo esc_attr( pmpro_get_element_class( 'pmpro_card_title pmpro_font-large' ) ); ?>">
 				<span class="<?php echo esc_attr( pmpro_get_element_class( 'pmpro_download-icon' ) ); ?>">
-					<?php echo pmpro_downloads_get_icon_svg( 'lock', 24 ); ?>
+					<?php echo pmpro_downloads_get_icon_svg( 'lock', 24 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static inline SVG markup; size is absint(). ?>
 				</span>
 				<span class="<?php echo esc_attr( pmpro_get_element_class( 'pmpro_download-title' ) ); ?>">
 					<?php echo esc_html( $template_vars['display_name'] ); ?>
