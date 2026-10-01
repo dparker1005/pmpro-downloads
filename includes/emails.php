@@ -36,7 +36,8 @@ add_action( 'pmpro_before_email_sent', 'pmpro_downloads_swap_shortcodes_in_email
  *
  * If the shortcode is invalid (missing ID, ID does not point to a published
  * pmpro_download post, or the download has no file), the original shortcode text is returned
- * unchanged so the admin who configured the email can see the typo and fix it.
+ * unchanged so the admin who configured the email can see the typo and fix it. Recipients
+ * also see this text, including when a download is unpublished after the email is set up.
  *
  * @since 1.1
  *
