@@ -32,9 +32,9 @@ function pmpro_downloads_shortcode( $atts ) {
 		return '';
 	}
 
-	// Get the download post.
+	// Get the download post. Only published downloads are displayed.
 	$download = get_post( $post_id );
-	if ( empty( $download ) || 'pmpro_download' !== $download->post_type ) {
+	if ( empty( $download ) || 'pmpro_download' !== $download->post_type || 'publish' !== get_post_status( $download ) ) {
 		return '';
 	}
 
